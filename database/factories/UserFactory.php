@@ -6,17 +6,36 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ */
 class UserFactory extends Factory
 {
+    /**
+     * Define the model's default state.
+     */
     public function definition(): array
     {
         return [
             'name' => fake()->name(),
+
             'email' => fake()->unique()->safeEmail(),
-            'phone' => fake()->optional(0.8)->numerify('##########'), // 80% chance of having a phone
-            'age' => fake()->numberBetween(18, 100),
-            'bio' => fake()->optional(0.7)->paragraph(), // 70% chance of having a bio
-            // Remove authentication fields since we're not using them
+
+            'password' => Hash::make('Password@123'),
+
+            'phone' => fake()->numerify('##########'),
+
+            'age' => fake()->numberBetween(18, 70),
+
+            'employment_status' => 'employed',
+
+            'company_name' => fake()->company(),
+
+            'bio' => fake()->optional()->paragraph(),
+
+            'email_verified_at' => now(),
+
+            'remember_token' => Str::random(10),
         ];
     }
 }
