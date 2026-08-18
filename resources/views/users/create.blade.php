@@ -1,278 +1,229 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
 
-@section('content')
+<head>
 
-<div class="row justify-content-center">
-    <div class="col-md-8">
+    <meta charset="UTF-8">
 
-        <div class="card">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Create New User</h4>
+    <title>Create User</title>
 
-                <a href="{{ route('users.index') }}"
-                   class="btn btn-secondary">
-                    Back to List
-                </a>
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+</head>
+
+<body class="bg-light">
+
+    <div class="container py-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h2>
+                    Create User
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Add a new user
+                </p>
+
             </div>
 
-            <div class="card-body">
+            <a
+                href="{{ route('users.index') }}"
+                class="btn btn-secondary">
+                ← Users
+            </a>
 
-                <form method="POST"
-                      action="{{ route('users.store') }}">
+        </div>
+
+
+        @if($errors->any())
+
+        <div class="alert alert-danger">
+
+            <strong>
+                Please fix these errors:
+            </strong>
+
+            <ul class="mb-0 mt-2">
+
+                @foreach($errors->all() as $error)
+
+                <li>
+                    {{ $error }}
+                </li>
+
+                @endforeach
+
+            </ul>
+
+        </div>
+
+        @endif
+
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body p-4">
+
+                <form
+                    method="POST"
+                    action="{{ route('users.store') }}">
 
                     @csrf
 
+
                     {{-- Name --}}
+
                     <div class="mb-3">
 
-                        <label for="name" class="form-label">
-                            Name <span class="text-danger">*</span>
+                        <label class="form-label">
+                            Name *
                         </label>
 
-                        <input type="text"
-                               class="form-control @error('name') is-invalid @enderror"
-                               id="name"
-                               name="name"
-                               value="{{ old('name') }}"
-                               required>
+                        <input
+                            type="text"
+                            name="name"
+                            value="{{ old('name') }}"
+                            class="form-control @error('name') is-invalid @enderror"
+                            placeholder="Enter full name">
 
                         @error('name')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
 
-                    </div>
-
-                    {{-- Email --}}
-                    <div class="mb-3">
-
-                        <label for="email" class="form-label">
-                            Email <span class="text-danger">*</span>
-                        </label>
-
-                        <input type="email"
-                               class="form-control @error('email') is-invalid @enderror"
-                               id="email"
-                               name="email"
-                               value="{{ old('email') }}"
-                               required>
-
-                        @error('email')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
-                    </div>
-
-                    {{-- Password --}}
-                    <div class="mb-3">
-
-                        <label for="password" class="form-label">
-                            Password <span class="text-danger">*</span>
-                        </label>
-
-                        <input type="password"
-                               class="form-control @error('password') is-invalid @enderror"
-                               id="password"
-                               name="password"
-                               required>
-
-                        @error('password')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
-                        <div class="form-text">
-                            Password must contain at least 8 characters,
-                            including uppercase, lowercase, number and
-                            special character.
+                        <div class="invalid-feedback">
+                            {{ $message }}
                         </div>
 
+                        @enderror
+
                     </div>
 
-                    {{-- Password Confirmation --}}
+
+                    {{-- Email --}}
+
                     <div class="mb-3">
 
-                        <label for="password_confirmation" class="form-label">
-                            Confirm Password <span class="text-danger">*</span>
+                        <label class="form-label">
+                            Email *
                         </label>
 
-                        <input type="password"
-                               class="form-control"
-                               id="password_confirmation"
-                               name="password_confirmation"
-                               required>
+                        <input
+                            type="email"
+                            name="email"
+                            value="{{ old('email') }}"
+                            class="form-control @error('email') is-invalid @enderror"
+                            placeholder="example@gmail.com">
+
+                        @error('email')
+
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+
+                        @enderror
 
                     </div>
 
+
                     {{-- Phone --}}
+
                     <div class="mb-3">
 
-                        <label for="phone" class="form-label">
+                        <label class="form-label">
                             Phone
                         </label>
 
-                        <input type="text"
-                               class="form-control @error('phone') is-invalid @enderror"
-                               id="phone"
-                               name="phone"
-                               value="{{ old('phone') }}"
-                               placeholder="e.g., 1234567890">
+                        <input
+                            type="text"
+                            name="phone"
+                            value="{{ old('phone') }}"
+                            class="form-control @error('phone') is-invalid @enderror"
+                            placeholder="Enter phone number">
 
                         @error('phone')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
 
-                        <div class="form-text">
-                            10-15 digits, numbers only.
+                        <div class="invalid-feedback">
+                            {{ $message }}
                         </div>
 
+                        @enderror
+
                     </div>
+
 
                     {{-- Age --}}
+
                     <div class="mb-3">
 
-                        <label for="age" class="form-label">
-                            Age <span class="text-danger">*</span>
+                        <label class="form-label">
+                            Age *
                         </label>
 
-                        <input type="number"
-                               class="form-control @error('age') is-invalid @enderror"
-                               id="age"
-                               name="age"
-                               value="{{ old('age') }}"
-                               min="18"
-                               max="100"
-                               required>
+                        <input
+                            type="number"
+                            name="age"
+                            value="{{ old('age') }}"
+                            min="18"
+                            max="100"
+                            class="form-control @error('age') is-invalid @enderror"
+                            placeholder="18 - 100">
 
                         @error('age')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
 
-                        <div class="form-text">
-                            Must be between 18 and 100.
+                        <div class="invalid-feedback">
+                            {{ $message }}
                         </div>
 
-                    </div>
-
-                    {{-- Employment Status --}}
-                    <div class="mb-3">
-
-                        <label for="employment_status" class="form-label">
-                            Employment Status
-                            <span class="text-danger">*</span>
-                        </label>
-
-                        <select name="employment_status"
-                                id="employment_status"
-                                class="form-select @error('employment_status') is-invalid @enderror"
-                                required>
-
-                            <option value="">
-                                Select employment status
-                            </option>
-
-                            <option value="employed"
-                                {{ old('employment_status') === 'employed' ? 'selected' : '' }}>
-                                Employed
-                            </option>
-
-                            <option value="self-employed"
-                                {{ old('employment_status') === 'self-employed' ? 'selected' : '' }}>
-                                Self-employed
-                            </option>
-
-                            <option value="student"
-                                {{ old('employment_status') === 'student' ? 'selected' : '' }}>
-                                Student
-                            </option>
-
-                            <option value="unemployed"
-                                {{ old('employment_status') === 'unemployed' ? 'selected' : '' }}>
-                                Unemployed
-                            </option>
-
-                        </select>
-
-                        @error('employment_status')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
                         @enderror
 
                     </div>
 
-                    {{-- Company Name --}}
-                    <div class="mb-3">
-
-                        <label for="company_name" class="form-label">
-                            Company Name
-                        </label>
-
-                        <input type="text"
-                               class="form-control @error('company_name') is-invalid @enderror"
-                               id="company_name"
-                               name="company_name"
-                               value="{{ old('company_name') }}"
-                               placeholder="Enter company name">
-
-                        @error('company_name')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
-
-                        <div class="form-text">
-                            Required when employment status is
-                            Employed or Self-employed.
-                        </div>
-
-                    </div>
 
                     {{-- Bio --}}
+
                     <div class="mb-3">
 
-                        <label for="bio" class="form-label">
+                        <label class="form-label">
                             Bio
                         </label>
 
-                        <textarea class="form-control @error('bio') is-invalid @enderror"
-                                  id="bio"
-                                  name="bio"
-                                  rows="3"
-                                  placeholder="Tell us about yourself...">{{ old('bio') }}</textarea>
+                        <textarea
+                            name="bio"
+                            rows="4"
+                            class="form-control @error('bio') is-invalid @enderror"
+                            placeholder="Enter user bio">{{ old('bio') }}</textarea>
 
                         @error('bio')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
 
-                        <div class="form-text">
-                            Maximum 500 characters.
+                        <div class="invalid-feedback">
+                            {{ $message }}
                         </div>
+
+                        @enderror
 
                     </div>
 
-                    <div class="d-grid gap-2">
 
-                        <button type="submit"
-                                class="btn btn-primary">
+                    <div class="d-flex gap-2">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary">
                             Create User
                         </button>
 
-                        <button type="reset"
-                                class="btn btn-secondary">
-                            Reset Form
-                        </button>
+                        <a
+                            href="{{ route('users.index') }}"
+                            class="btn btn-secondary">
+                            Cancel
+                        </a>
 
                     </div>
 
@@ -280,61 +231,10 @@
 
             </div>
 
-            {{-- Validation Rules --}}
-            <div class="card-footer">
-
-                <h6>Validation Rules:</h6>
-
-                <ul class="small mb-0">
-
-                    <li>
-                        <strong>Name:</strong>
-                        Required, 2-255 characters
-                    </li>
-
-                    <li>
-                        <strong>Email:</strong>
-                        Required, valid and unique
-                    </li>
-
-                    <li>
-                        <strong>Password:</strong>
-                        Minimum 8 characters with uppercase, lowercase,
-                        number and special character
-                    </li>
-
-                    <li>
-                        <strong>Phone:</strong>
-                        Optional, 10-15 digits
-                    </li>
-
-                    <li>
-                        <strong>Age:</strong>
-                        Required, 18-100
-                    </li>
-
-                    <li>
-                        <strong>Employment Status:</strong>
-                        Required
-                    </li>
-
-                    <li>
-                        <strong>Company:</strong>
-                        Required for employed/self-employed users
-                    </li>
-
-                    <li>
-                        <strong>Bio:</strong>
-                        Optional, maximum 500 characters
-                    </li>
-
-                </ul>
-
-            </div>
-
         </div>
 
     </div>
-</div>
 
-@endsection
+</body>
+
+</html>
