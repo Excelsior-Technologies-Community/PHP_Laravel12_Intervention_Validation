@@ -15,70 +15,76 @@
                 <!-- Search Form -->
                 <form action="{{ route('users.search') }}" method="GET" class="mb-4">
                     <div class="input-group">
-                        <input type="text" 
-                               name="search" 
-                               class="form-control" 
-                               placeholder="Search by name or email..." 
-                               value="{{ $search ?? '' }}">
+                        <input type="text"
+                            name="search"
+                            class="form-control"
+                            placeholder="Search by name or email..."
+                            value="{{ $search ?? '' }}">
                         <button class="btn btn-outline-secondary" type="submit">Search</button>
                     </div>
                 </form>
 
                 <!-- Users Table -->
                 @if($users->count() > 0)
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Age</th>
-                                    <th>Created At</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($users as $user)
-                                <tr>
-                                    <td>{{ $user->id }}</td>
-                                    <td>{{ $user->name }}</td>
-                                    <td>{{ $user->email }}</td>
-                                    <td>{{ $user->phone ?? 'N/A' }}</td>
-                                    <td>{{ $user->age }}</td>
-                                    <td>{{ $user->created_at->format('Y-m-d') }}</td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <a href="{{ route('users.show', $user) }}" 
-                                               class="btn btn-sm btn-info">View</a>
-                                            <a href="{{ route('users.edit', $user) }}" 
-                                               class="btn btn-sm btn-warning">Edit</a>
-                                            <form action="{{ route('users.destroy', $user) }}" 
-                                                  method="POST" 
-                                                  class="d-inline"
-                                                  onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Age</th>
+                                <th>Employment</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($users as $user)
+                            <tr>
+                                <td>{{ $user->id }}</td>
+                                <td>{{ $user->name }}</td>
+                                <td>{{ $user->email }}</td>
+                                <td>{{ $user->phone ?? 'N/A' }}</td>
+                                <td>{{ $user->age }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        {{ ucfirst($user->employment_status ?? 'N/A') }}
+                                    </span>
+                                </td>
+                                <td>{{ $user->created_at->format('Y-m-d') }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ route('users.show', $user) }}"
+                                            class="btn btn-sm btn-info">View</a>
+                                        <a href="{{ route('users.edit', $user) }}"
+                                            class="btn btn-sm btn-warning">Edit</a>
+                                        <form action="{{ route('users.destroy', $user) }}"
+                                            method="POST"
+                                            class="d-inline"
+                                            onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
 
-                    <!-- Pagination -->
-                    <div class="d-flex justify-content-center">
-                        {{ $users->links() }}
-                    </div>
+                <!-- Pagination -->
+                <div class="d-flex justify-content-center">
+                    {{ $users->links() }}
+                </div>
                 @else
-                    <div class="alert alert-info">
-                        No users found. 
-                        <a href="{{ route('users.create') }}">Create your first user!</a>
-                    </div>
+                <div class="alert alert-info">
+                    No users found.
+                    <a href="{{ route('users.create') }}">Create your first user!</a>
+                </div>
                 @endif
             </div>
         </div>
