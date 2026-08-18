@@ -3,9 +3,10 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
-class StoreUserRequest extends FormRequest
+class UpdateUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -20,6 +21,8 @@ class StoreUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $user = $this->route('user');
+
         return [
             'name' => [
                 'required',
@@ -32,11 +35,16 @@ class StoreUserRequest extends FormRequest
                 'required',
                 'email',
                 'max:255',
-                'unique:users,email',
+                Rule::unique('users', 'email')->ignore($user->id),
             ],
 
+            /*
+             * Password is optional during update.
+             *
+             * If the user leaves it empty, the old password remains unchanged.
+             */
             'password' => [
-                'required',
+                'nullable',
                 'string',
                 'confirmed',
                 Password::min(8)
@@ -93,7 +101,6 @@ class StoreUserRequest extends FormRequest
             'email.email' => 'Please enter a valid email address.',
             'email.unique' => 'This email is already registered.',
 
-            'password.required' => 'Password is required.',
             'password.confirmed' => 'Password confirmation does not match.',
 
             'phone.numeric' => 'Phone number must contain numbers only.',
