@@ -3,12 +3,11 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 
 class StoreUserRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determine if the user is authorized.
      */
     public function authorize(): bool
     {
@@ -16,7 +15,7 @@ class StoreUserRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules.
+     * Validation rules.
      */
     public function rules(): array
     {
@@ -31,18 +30,8 @@ class StoreUserRequest extends FormRequest
             'email' => [
                 'required',
                 'email',
-                'max:255',
                 'unique:users,email',
-            ],
-
-            'password' => [
-                'required',
-                'string',
-                'confirmed',
-                Password::min(8)
-                    ->mixedCase()
-                    ->numbers()
-                    ->symbols(),
+                'max:255',
             ],
 
             'phone' => [
@@ -58,19 +47,6 @@ class StoreUserRequest extends FormRequest
                 'max:100',
             ],
 
-            'employment_status' => [
-                'required',
-                'in:employed,self-employed,student,unemployed',
-            ],
-
-            'company_name' => [
-                'nullable',
-                'string',
-                'max:255',
-                'required_if:employment_status,employed',
-                'required_if:employment_status,self-employed',
-            ],
-
             'bio' => [
                 'nullable',
                 'string',
@@ -80,40 +56,49 @@ class StoreUserRequest extends FormRequest
     }
 
     /**
-     * Get custom validation messages.
+     * Custom validation messages.
      */
     public function messages(): array
     {
         return [
-            'name.required' => 'Please enter your full name.',
-            'name.min' => 'Name must be at least 2 characters.',
-            'name.max' => 'Name cannot exceed 255 characters.',
+            'name.required' =>
+            'Please enter your full name.',
 
-            'email.required' => 'Email address is required.',
-            'email.email' => 'Please enter a valid email address.',
-            'email.unique' => 'This email is already registered.',
+            'name.min' =>
+            'Name must be at least 2 characters.',
 
-            'password.required' => 'Password is required.',
-            'password.confirmed' => 'Password confirmation does not match.',
+            'name.max' =>
+            'Name cannot exceed 255 characters.',
 
-            'phone.numeric' => 'Phone number must contain numbers only.',
-            'phone.digits_between' => 'Phone number must contain between 10 and 15 digits.',
+            'email.required' =>
+            'Email address is required.',
 
-            'age.required' => 'Age is required.',
-            'age.integer' => 'Age must be a whole number.',
-            'age.min' => 'You must be at least 18 years old.',
-            'age.max' => 'Age cannot exceed 100 years.',
+            'email.email' =>
+            'Please enter a valid email address.',
 
-            'employment_status.required' => 'Please select your employment status.',
-            'employment_status.in' => 'Please select a valid employment status.',
+            'email.unique' =>
+            'This email is already registered.',
 
-            'company_name.required_if' =>
-                'Company name is required for employed or self-employed users.',
+            'phone.numeric' =>
+            'Phone number must contain only numbers.',
 
-            'company_name.max' =>
-                'Company name cannot exceed 255 characters.',
+            'phone.digits_between' =>
+            'Phone number must contain between 10 and 15 digits.',
 
-            'bio.max' => 'Bio cannot exceed 500 characters.',
+            'age.required' =>
+            'Age is required.',
+
+            'age.integer' =>
+            'Age must be a whole number.',
+
+            'age.min' =>
+            'You must be at least 18 years old.',
+
+            'age.max' =>
+            'Age cannot exceed 100 years.',
+
+            'bio.max' =>
+            'Bio cannot exceed 500 characters.',
         ];
     }
 }
