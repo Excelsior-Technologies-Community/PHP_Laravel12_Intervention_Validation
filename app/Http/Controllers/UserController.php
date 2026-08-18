@@ -3,25 +3,237 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     /**
-     * Display a listing of users.
+     * Display users with search, filters, sorting and pagination.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::orderBy('created_at', 'desc')->paginate(10);
+        $request->validate([
+            'search' => ['nullable', 'string', 'max:255'],
 
-        return view('users.index', compact('users'));
+            'age_from' => [
+                'nullable',
+                'integer',
+                'min:18',
+                'max:100',
+            ],
+
+            'age_to' => [
+                'nullable',
+                'integer',
+                'min:18',
+                'max:100',
+                'gte:age_from',
+            ],
+
+            'date_from' => [
+                'nullable',
+                'date',
+            ],
+
+            'date_to' => [
+                'nullable',
+                'date',
+                'after_or_equal:date_from',
+            ],
+
+            'sort_by' => [
+                'nullable',
+                'in:id,name,email,age,created_at',
+            ],
+
+            'sort_direction' => [
+                'nullable',
+                'in:asc,desc',
+            ],
+
+            'per_page' => [
+                'nullable',
+                'integer',
+                'in:5,10,15,25,50',
+            ],
+        ]);
+
+        $query = User::query();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Search
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+
+                if (is_numeric($search)) {
+                    $q->orWhere('id', $search)
+                        ->orWhere('age', $search);
+                }
+            });
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Age From
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('age_from')) {
+            $query->where(
+                'age',
+                '>=',
+                $request->age_from
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Age To
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('age_to')) {
+            $query->where(
+                'age',
+                '<=',
+                $request->age_to
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Registration Date From
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('date_from')) {
+            $query->whereDate(
+                'created_at',
+                '>=',
+                $request->date_from
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Registration Date To
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('date_to')) {
+            $query->whereDate(
+                'created_at',
+                '<=',
+                $request->date_to
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Sorting
+        |--------------------------------------------------------------------------
+        */
+
+        $allowedSorts = [
+            'id',
+            'name',
+            'email',
+            'age',
+            'created_at',
+        ];
+
+        $sortBy = $request->get('sort_by', 'id');
+
+        if (!in_array($sortBy, $allowedSorts, true)) {
+            $sortBy = 'id';
+        }
+
+        $sortDirection = $request->get(
+            'sort_direction',
+            'asc'
+        );
+
+        if (!in_array(
+            $sortDirection,
+            ['asc', 'desc'],
+            true
+        )) {
+            $sortDirection = 'asc';
+        }
+
+        $query->orderBy(
+            $sortBy,
+            $sortDirection
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Pagination
+        |--------------------------------------------------------------------------
+        */
+
+        $perPage = (int) $request->get(
+            'per_page',
+            5
+        );
+
+        if (!in_array(
+            $perPage,
+            [5, 10, 15, 25, 50],
+            true
+        )) {
+            $perPage = 5;
+        }
+
+        $users = $query
+            ->paginate($perPage)
+            ->withQueryString();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Statistics
+        |--------------------------------------------------------------------------
+        */
+
+        $totalUsers = User::count();
+
+        $averageAge = User::query()
+            ->whereNotNull('age')
+            ->avg('age');
+
+        $newUsersToday = User::query()
+            ->whereDate(
+                'created_at',
+                today()
+            )
+            ->count();
+
+        return view(
+            'users.index',
+            compact(
+                'users',
+                'totalUsers',
+                'averageAge',
+                'newUsersToday',
+                'sortBy',
+                'sortDirection',
+                'perPage'
+            )
+        );
     }
 
     /**
-     * Show the form for creating a new user.
+     * Show create user form.
      */
     public function create()
     {
@@ -29,69 +241,35 @@ class UserController extends Controller
     }
 
     /**
-     * Store a newly created user in storage.
-     *
-     * Uses Form Request validation.
+     * Store a new user.
      */
     public function store(StoreUserRequest $request)
     {
-        $validatedData = $request->validated();
-
-        // Hash password before storing it.
-        $validatedData['password'] = Hash::make($validatedData['password']);
-
-        User::create($validatedData);
+        User::create(
+            $request->validated()
+        );
 
         return redirect()
             ->route('users.index')
-            ->with('success', 'User created successfully!');
+            ->with(
+                'success',
+                'User created successfully!'
+            );
     }
 
     /**
-     * Display the specified user.
+     * Display user details.
      */
     public function show(User $user)
     {
-        return view('users.show', compact('user'));
+        return view(
+            'users.show',
+            compact('user')
+        );
     }
 
     /**
-     * Show the form for editing the specified user.
-     */
-    public function edit(User $user)
-    {
-        return view('users.edit', compact('user'));
-    }
-
-    /**
-     * Update the specified user in storage.
-     */
-    public function update(UpdateUserRequest $request, User $user)
-    {
-        $validatedData = $request->validated();
-
-        /*
-         * Password is optional during update.
-         *
-         * If no new password is supplied, keep the existing password.
-         */
-        if (!empty($validatedData['password'])) {
-            $validatedData['password'] = Hash::make(
-                $validatedData['password']
-            );
-        } else {
-            unset($validatedData['password']);
-        }
-
-        $user->update($validatedData);
-
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User updated successfully!');
-    }
-
-    /**
-     * Remove the specified user from storage.
+     * Delete user.
      */
     public function destroy(User $user)
     {
@@ -99,22 +277,9 @@ class UserController extends Controller
 
         return redirect()
             ->route('users.index')
-            ->with('success', 'User deleted successfully!');
-    }
-
-    /**
-     * Search users by name or email.
-     */
-    public function search(Request $request)
-    {
-        $search = $request->get('search');
-
-        $users = User::where('name', 'like', '%' . $search . '%')
-            ->orWhere('email', 'like', '%' . $search . '%')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10)
-            ->withQueryString();
-
-        return view('users.index', compact('users', 'search'));
+            ->with(
+                'success',
+                'User deleted successfully!'
+            );
     }
 }
